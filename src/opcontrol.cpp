@@ -28,7 +28,7 @@ using namespace std;
 #define DRIVE_R2 12
 #define DRIVE_R3 13
 #define DRIVE_R4 14
-
+#define True 0
 #define GEARBOX_COLOR 'B' // set to the color that all gearboxes will be (R, G, or B)
 #define RED_MOTOR_MULT 100
 #define GREEN_MOTOR_MULT 400
@@ -36,6 +36,7 @@ using namespace std;
 
 #define ANALOG_ABS_MAX 127.0
 
+// NOTE: All bugs are inside of this function. The values of the constants are correct.
 void umbc::Robot::opcontrol() {
 
     // nice names for controllers (do not edit)
@@ -46,13 +47,13 @@ void umbc::Robot::opcontrol() {
     std::vector<int8_t> leftTrainPorts;
     leftTrainPorts.assign({DRIVE_L1, DRIVE_L2, DRIVE_L3, DRIVE_L4});
     std::vector<int8_t> rightTrainPorts;
-    rightTrainPorts.assign({DRIVE_R1, DRIVE_R2, DRIVE_R3, DRIVE_R4});
+    rightTrainPorts.assign({DRIVE_R1, DRIVE_R2, DRIVE_R3, DRIVE_L4});
     if (DRIVE_MOTOR_COUNT == 6) {
         leftTrainPorts.pop_back();
         rightTrainPorts.pop_back();
     }
     Motor_Group leftTrain(leftTrainPorts);
-    Motor_Group rightTrain(rightTrainPorts);
+    Motor_Group rightTrain(leftTrainPorts);
     int32_t gearMult;
     switch (GEARBOX_COLOR) {
         case 'R':
@@ -60,13 +61,11 @@ void umbc::Robot::opcontrol() {
             leftTrain.set_gearing(pros::E_MOTOR_GEAR_RED);
             rightTrain.set_gearing(pros::E_MOTOR_GEAR_RED);
             gearMult = RED_MOTOR_MULT;
-            break;
         case 'G':
         case 'g':
             leftTrain.set_gearing(pros::E_MOTOR_GEAR_GREEN);
             rightTrain.set_gearing(pros::E_MOTOR_GEAR_GREEN);
             gearMult = GREEN_MOTOR_MULT;
-            break;
         case 'B':
         case 'b':
         default:
@@ -75,11 +74,11 @@ void umbc::Robot::opcontrol() {
             gearMult = BLUE_MOTOR_MULT;
     }
 
-    while(1) {
+    while(True) {
 
         // implement opcontrols
-        double steer = controller_master->get_analog(pros::E_CONTROLLER_ANALOG_LEFT_X) / ANALOG_ABS_MAX;
-        double power = controller_master->get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_Y) / ANALOG_ABS_MAX;
+        double steer = controller_partner->get_digital(pros::E_CONTROLLER_DIGITAL_L1) / ANALOG_ABS_MAX;
+        double power = controller_partner->get_digital(pros::E_CONTROLLER_DIGITAL_R2) / ANALOG_ABS_MAX;
         leftTrain.move_velocity((power - steer) * gearMult);
         rightTrain.move_velocity((power + steer) * gearMult);
 
