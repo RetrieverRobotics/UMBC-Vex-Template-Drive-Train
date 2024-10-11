@@ -80,7 +80,7 @@ void umbc::Robot::opcontrol() {
         // implement opcontrols
         double steer = controller_master->get_analog(pros::E_CONTROLLER_ANALOG_LEFT_X) / ANALOG_ABS_MAX;
         double power = controller_master->get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_Y) / ANALOG_ABS_MAX;
-        leftTrain.move_velocity((power - steer) * gearMult);
+        leftTrain.move_velocity((steer - power) * gearMult);
         rightTrain.move_velocity((power + steer) * gearMult);
 
         // required loop delay (do not edit)
